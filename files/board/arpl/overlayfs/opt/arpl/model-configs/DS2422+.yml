@@ -3,7 +3,6 @@ synoinfo: &synoinfo
   support_disk_compatibility: "no"
   support_memory_compatibility: "no"
   support_led_brightness_adjustment: "no"
-  supportssdcache: "no"
   support_syno_hybrid_raid:
   supportraidgroup:
   maxlanport: "8"
@@ -25,7 +24,7 @@ serial:
   middle: "SLR"
   suffix: "alpha"
 dom: 2
-dt: true
+dt: false
 disks: 12
 beta: false
 productvers:

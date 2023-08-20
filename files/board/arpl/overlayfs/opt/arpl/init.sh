@@ -16,8 +16,8 @@ done
 
 [ -z "${LOADER_DISK}" ] && die "$(TEXT "Loader disk not found!")"
 NUM_PARTITIONS=$(blkid | grep "${LOADER_DISK}[0-9]\+" | cut -d: -f1 | wc -l)
-[ $NUM_PARTITIONS -lt 3 ] && die "$(TEXT "Loader disk seems to be damaged!")"
-[ $NUM_PARTITIONS -gt 3 ] && die "$(TEXT "There are multiple loader disks, please insert only one loader disk!")"
+[ ${NUM_PARTITIONS} -lt 3 ] && die "$(TEXT "Loader disk seems to be damaged!")"
+[ ${NUM_PARTITIONS} -gt 3 ] && die "$(TEXT "There are multiple loader disks, please insert only one loader disk!")"
 
 # Check partitions and ignore errors
 fsck.vfat -aw ${LOADER_DISK}1 >/dev/null 2>&1 || true
@@ -39,10 +39,10 @@ mount ${LOADER_DISK}3 ${CACHE_PATH} || die "$(printf "$(TEXT "Can't mount %s")" 
 # Shows title
 clear
 TITLE="$(printf "$(TEXT "Welcome to %s")" "${ARPL_TITLE}")"
-printf "\033[1;44m%*s\n" $COLUMNS ""
-printf "\033[1;44m%*s\033[A\n" $COLUMNS ""
-printf "\033[1;32m%*s\033[0m\n" $(((${#TITLE} + $COLUMNS) / 2)) "${TITLE}"
-printf "\033[1;44m%*s\033[0m\n" $COLUMNS ""
+printf "\033[1;44m%*s\n" ${COLUMNS} ""
+printf "\033[1;44m%*s\033[A\n" ${COLUMNS} ""
+printf "\033[1;32m%*s\033[0m\n" $(((${#TITLE} + ${COLUMNS}) / 2)) "${TITLE}"
+printf "\033[1;44m%*s\033[0m\n" ${COLUMNS} ""
 
 # Move/link SSH machine keys to/from cache volume
 [ ! -d "${CACHE_PATH}/ssh" ] && cp -R "/etc/ssh" "${CACHE_PATH}/ssh"
@@ -123,10 +123,12 @@ done
 VID="0x0000"
 PID="0x0000"
 BUS=$(udevadm info --query property --name ${LOADER_DISK} | grep ID_BUS | cut -d= -f2)
+[ "${BUS}" = "ata" ] && BUS="sata"
+
 if [ "${BUS}" = "usb" ]; then
   VID="0x$(udevadm info --query property --name ${LOADER_DISK} | grep ID_VENDOR_ID | cut -d= -f2)"
   PID="0x$(udevadm info --query property --name ${LOADER_DISK} | grep ID_MODEL_ID | cut -d= -f2)"
-elif [ "${BUS}" != "ata" ]; then
+elif [ "${BUS}" != "sata" -a "${BUS}" != "scsi" ]; then
   die "$(TEXT "Loader disk neither USB or DoM")"
 fi
 
@@ -135,13 +137,7 @@ writeConfigKey "vid" ${VID} "${USER_CONFIG_FILE}"
 writeConfigKey "pid" ${PID} "${USER_CONFIG_FILE}"
 
 # Inform user
-echo -en "$(TEXT "Loader disk:") \033[1;32m${LOADER_DISK}\033[0m ("
-if [ "${BUS}" = "usb" ]; then
-  echo -en "\033[1;32mUSB flashdisk\033[0m"
-else
-  echo -en "\033[1;32mSATA DoM\033[0m"
-fi
-echo ")"
+echo -e "$(TEXT "Loader disk:") \033[1;32m${LOADER_DISK}\033[0m (\033[1;32m${BUS^^} flashdisk\033[0m)"
 
 # Check if partition 3 occupies all free space, resize if needed
 LOADER_DEVICE_NAME=$(echo ${LOADER_DISK} | sed 's|/dev/||')
@@ -150,7 +146,7 @@ ENDSECTOR=$(($(fdisk -l ${LOADER_DISK} | awk '/'${LOADER_DEVICE_NAME}3'/{print$3
 if [ ${SIZEOFDISK} -ne ${ENDSECTOR} ]; then
   echo -e "\033[1;36m$(printf "$(TEXT "Resizing %s")" "${LOADER_DISK}3")\033[0m"
   echo -e "d\n\nn\n\n\n\n\nn\nw" | fdisk "${LOADER_DISK}" >"${LOG_FILE}" 2>&1 || dieLog
-  resize2fs ${LOADER_DISK}3 >"${LOG_FILE}" 2>&1 || dieLog
+  resize2fs "${LOADER_DISK}3" >"${LOG_FILE}" 2>&1 || dieLog
 fi
 
 # Load keymap name
@@ -158,9 +154,9 @@ LAYOUT="$(readConfigKey "layout" "${USER_CONFIG_FILE}")"
 KEYMAP="$(readConfigKey "keymap" "${USER_CONFIG_FILE}")"
 
 # Loads a keymap if is valid
-if [ -f /usr/share/keymaps/i386/${LAYOUT}/${KEYMAP}.map.gz ]; then
+if [ -f "/usr/share/keymaps/i386/${LAYOUT}/${KEYMAP}.map.gz" ]; then
   echo -e "$(TEXT "Loading keymap") \033[1;32m${LAYOUT}/${KEYMAP}\033[0m"
-  zcat /usr/share/keymaps/i386/${LAYOUT}/${KEYMAP}.map.gz | loadkeys
+  zcat "/usr/share/keymaps/i386/${LAYOUT}/${KEYMAP}.map.gz" | loadkeys
 fi
 
 # Decide if boot automatically
@@ -190,7 +186,7 @@ while [ ${COUNT} -lt 30 ]; do
       hasConnect="true"
     fi
   done
-  if [ ${hasConnect} = "true" ]; then
+  if [ "${hasConnect}" = "true" ]; then
     echo -en "connected.\n"
     break
   fi
@@ -219,7 +215,7 @@ for N in $(seq 0 $(expr ${#ETHX[@]} - 1)); do
     COUNT=$((${COUNT} + 1))
     IP=$(ip route show dev ${ETHX[${N}]} 2>/dev/null | sed -n 's/.* via .* src \(.*\)  metric .*/\1/p')
     if [ -n "${IP}" ]; then
-      echo -en "\r${ETHX[${N}]}(${DRIVER}): $(printf "$(TEXT "Access \033[1;34mhttp://%s:5000\033[0m to configure the loader via web terminal.")" "${IP}")\n"
+      echo -en "\r${ETHX[${N}]}(${DRIVER}): $(printf "$(TEXT "Access \033[1;34mhttp://%s:7681\033[0m to configure the loader via web terminal.")" "${IP}")\n"
       break
     fi
     echo -n "."

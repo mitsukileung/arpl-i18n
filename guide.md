@@ -4,9 +4,10 @@
    * telnet 工具 putty (下载: https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)  
    * ssh 工具 FinalShell (下载: https://www.hostbuf.com/t/988.html)  
    * sftp 工具 WinSCP (下载: https://winscp.net/eng/index.php)
-   * 文本编辑工具 Notepad3 (下载: https://github.com/rizonesoft/Notepad3/releases) (抵制Notepad++)   
+   * 文本编辑工具 Notepad3 (下载: https://github.com/rizonesoft/Notepad3/releases)
    * 镜像写盘工具 Rufus (下载: https://rufus.ie/zh/)
-   * 磁盘管理工具 Diskgenius (下载: 不敢说)
+   * 镜像转换工具 StarWind V2V Image Converter (下载: https://www.starwindsoftware.com/starwind-v2v-converter)
+   * 磁盘管理工具 Diskgenius (下载: https://www.diskgenius.com/)
 
 # LINK:
    * 查找: 
@@ -181,25 +182,27 @@
 * log:
   ```
   # 驱动相关
-  lsmod                                         # 查看已加载驱动  
-  ls -ld /sys/class/net/*/device/driver         # 查看已加载网卡和对应驱动  
-  cat /sys/class/net/*/address                  # 查看已加载网卡的MAC地址
+  lsmod                                            # 查看已加载驱动  
+  ls -ld /sys/class/net/*/device/driver            # 查看已加载网卡和对应驱动  
+  cat /sys/class/net/*/address                     # 查看已加载网卡的MAC地址
 
-  # 磁盘相关
-  fdisk -l                                      # 查看硬盘信息 
-  ls /sys/block/                                # 查看块设备  
-  ls /sys/block/sd*                             # 查看识别的 sata 硬盘 (非设备树(dtb)的型号)    
-  ls /sys/block/sata*                           # 查看识别的 sata 硬盘  (设备树(dtb)的型号)  
-  ls /sys/block/nvme*                           # 查看识别的 nvme 硬盘  
-  cat /sys/block/sd*/device/syno_block_info     # 查看识别的 sata 硬盘挂载点 (非设备树(dtb)的型号)  
-  cat /sys/block/sata*/device/syno_block_info   # 查看识别的 sata 硬盘挂载点 (设备树(dtb)的型号)  
-  cat /sys/block/nvme*/device/syno_block_info   # 查看识别的 nvme 硬盘挂载点  
+  # 磁盘相关   
+  fdisk -l                                         # 查看硬盘信息 
+  ls /sys/block/                                   # 查看块设备  
+  ls /sys/block/sd*                                # 查看识别的 sata 硬盘 (非设备树(dtb)的型号)    
+  ls /sys/block/sata*                              # 查看识别的 sata 硬盘  (设备树(dtb)的型号)  
+  ls /sys/block/nvme*                              # 查看识别的 nvme 硬盘  
+  cat /sys/block/sd*/device/syno_block_info        # 查看识别的 sata 硬盘挂载点 (非设备树(dtb)的型号)  
+  cat /sys/block/sata*/device/syno_block_info      # 查看识别的 sata 硬盘挂载点 (设备树(dtb)的型号)  
+  cat /sys/block/nvme*/device/syno_block_info      # 查看识别的 nvme 硬盘挂载点  
 
-  # 日志相关
-  dmesg                                         # 内核日志
-  cat /proc/cmdlime                             # 引导参数
-  cat /var/log/linuxrc.syno.log                 # 引导态下启动日志
-  cat /var/log/messages                         # 引导态下操作日志
+  systemctl                                        # 查看服务  
+
+  # 日志相关   
+  dmesg                                            # 内核日志
+  cat /proc/cmdlime                                # 引导参数
+  cat /var/log/linuxrc.syno.log                    # 引导态下启动日志
+  cat /var/log/messages                            # 引导态下操作日志
 
   # Intel GPU
   lspci -n | grep 0300 | cut -d " " -f 3           # PIDVID
