@@ -16,9 +16,15 @@
 * modules: https://github.com/wjz304/arpl-modules
 * rp-lkms: https://github.com/wjz304/redpill-lkm
 
+### About GPU: 
+* iGPU: https://jim.plus/
+* vGPU: https://blog.kkk.rs/
+
 ## 说明 - Instructions
 * [GUIDE](./guide.md)
- 
+* [About get logs](https://github.com/wjz304/arpl-i18n/issues/173)
+* [About not find DSM after "boot the loader"](https://github.com/wjz304/arpl-i18n/issues/175)
+* [About DT(Device Tree) and *portcfg/maxdisks](https://github.com/wjz304/arpl-i18n/issues/226)
 
 ## 翻译 - Translation
 * 其他语言的翻译 - Language translation work:
@@ -26,7 +32,7 @@
     # If it does not involve adding or deleting, the following process is not required.
     sudo apt install gettext
     git clone https://github.com/wjz304/arpl-i18n.git
-    cd arpl-i18n/files/board/arpl/overlayfs/opt/arpl
+    cd files/board/arpl/overlayfs/opt/arpl
     xgettext -L Shell --keyword=TEXT *.sh -o lang/arpl.pot
     sed -i 's/charset=CHARSET/charset=UTF-8/' lang/arpl.pot
     # You need to replace the language you need and translate the po file.
@@ -44,13 +50,23 @@
 ## 教程 - Usage 
 * English: https://www.youtube.com/watch?v=VB67_FG5y-E
     ##### `(From: @NETVN82)`
+* Español: https://www.youtube.com/watch?v=KC6oCcAyoV4
+    ##### `(From: @Jay tech 2023)`
 * 한국어: https://www.youtube.com/watch?v=4O7EfU6MT60
     ##### `(From: @pageinnet)`
-* 中文简体: https://www.bilibili.com/video/BV1jk4y1Y7B7  
-    ##### `(From: http://mi-d.cn)`
+* ภาษาไทย: https://www.youtube.com/watch?v=4sGrMMEQQ6I
+    ##### `(From: @stnology)`
 * 中文繁體: https://www.youtube.com/watch?v=cW2eRCjtAEs
     ##### `(From: @豪哥幫幫忙)`
+* 中文简体: https://www.bilibili.com/video/BV1jk4y1Y7B7  
+    ##### `(From: http://mi-d.cn)`
 
+## 免责声明 - Disclaimer
+* 硬盘有价，数据无价，任何对引导的修改都是有风险的，本人不承担数据丢失的责任。
+* 本工具仅用作学习交流，严禁用于商业用途。
+----
+* The hard drive has a price, but the data is priceless. Any modification to the bootloader is risky. I will not be responsible for data loss.
+* This tool is only for learning and communication, and commercial use is strictly prohibited.
 
 ## 打赏一下
 * > ### 作者: Ing  
