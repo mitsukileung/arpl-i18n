@@ -33,6 +33,7 @@ PRERELEASE="$(readConfigKey "prerelease" "${USER_CONFIG_FILE}")"
 BOOTWAIT="$(readConfigKey "bootwait" "${USER_CONFIG_FILE}")"
 BOOTIPWAIT="$(readConfigKey "bootipwait" "${USER_CONFIG_FILE}")"
 KERNELWAY="$(readConfigKey "kernelway" "${USER_CONFIG_FILE}")"
+KERNELPANIC="$(readConfigKey "kernelpanic" "${USER_CONFIG_FILE}")"
 ODP="$(readConfigKey "odp" "${USER_CONFIG_FILE}")" # official drivers priorities
 SN="$(readConfigKey "sn" "${USER_CONFIG_FILE}")"
 MAC1="$(readConfigKey "mac1" "${USER_CONFIG_FILE}")"
@@ -114,10 +115,11 @@ function modelMenu() {
           done
         fi
         [ "${DT}" = "true" ] && DT="DT" || DT=""
-        [ ${COMPATIBLE} -eq 1 ] && echo "${M} \"$(printf "\Zb%-12s\Zn \Z4%-2s\Zn" "${PLATFORM}" "${DT}")\" " >>"${TMP_PATH}/menu"
+        [ ${COMPATIBLE} -eq 1 ] && echo "${M} \"$(printf "\Zb%-15s %-2s\Zn" "${PLATFORM}" "${DT}")\" " >>"${TMP_PATH}/menu"
       done < <(cat "${TMP_PATH}/modellist" | sort -r -n -k 2)
       [ ${FLGNEX} -eq 1 ] && echo "f \"\Z1$(TEXT "Disable flags restriction")\Zn\"" >>"${TMP_PATH}/menu"
       [ ${FLGBETA} -eq 0 ] && echo "b \"\Z1$(TEXT "Show all models")\Zn\"" >>"${TMP_PATH}/menu"
+      echo "c \"\Z1$(TEXT "Compatibility judgment")\Zn\"" >>"${TMP_PATH}/menu"
       dialog --backtitle "$(backtitle)" --colors \
         --menu "$(TEXT "Choose the model")" 0 0 0 --file "${TMP_PATH}/menu" \
         2>${TMP_PATH}/resp
@@ -130,6 +132,47 @@ function modelMenu() {
       fi
       if [ "${resp}" = "b" ]; then
         FLGBETA=1
+        continue
+      fi
+      if [ "${resp}" = "c" ]; then
+        models=(DS918+ RS1619xs+ DS419+ DS1019+ DS719+ DS1621xs+)
+        [ $(lspci -d ::300 | grep 8086 | wc -l) -gt 0 ] && iGPU=1 || iGPU=0
+        [ $(lspci -d ::107 | wc -l) -gt 0 ] && LSI=1 || LSI=0
+        [ $(lspci -d ::108 | wc -l) -gt 0 ] && NVME=1 || NVME=0
+        if [ "${NVME}" = "1" ]; then
+          for PCI in $(lspci -d ::108 | awk '{print $1}'); do
+            if [ ! -d "/sys/devices/pci0000:00/0000:${PCI}/nvme" ]; then
+              NVME=2
+              break
+            fi
+          done
+        fi
+        rm -f "${TMP_PATH}/opts"
+        echo "$(printf "%-16s %8s %8s %8s" "model" "iGPU" "HBA" "M.2")" >>"${TMP_PATH}/opts"
+        while read M Y; do
+          PLATFORM=$(readModelKey "${M}" "platform")
+          DT="$(readModelKey "${M}" "dt")"
+          I915=" "
+          HBA=" "
+          M_2=" "
+          if [ "${iGPU}" = "1" ]; then
+            [ "${PLATFORM}" = "apollolake" -o "${PLATFORM}" = "geminilake" ] && I915="*"
+          fi
+          if [ "${LSI}" = "1" ]; then
+            [ ! "${DT}" = "true" ] && HBA="*   "
+          fi
+          if [ "${NVME}" = "1" ]; then
+            [ "${DT}" = "true" ] && M_2="*   "
+          fi
+          if [ "${NVME}" = "2" ]; then
+            if echo ${models[@]} | grep -q ${M}; then 
+              M_2="*   "
+            fi
+          fi
+          echo "$(printf "%-16s %8s %8s %8s" "${M}" "${I915}" "${HBA}" "${M_2}")" >>"${TMP_PATH}/opts"
+        done < <(cat "${TMP_PATH}/modellist" | sort -r -n -k 2)
+        dialog --backtitle "$(backtitle)" --colors \
+          --textbox "${TMP_PATH}/opts" 0 0
         continue
       fi
       break
@@ -770,8 +813,9 @@ function extractDsmFiles() {
     STATUS=$(curl -k -w "%{http_code}" -L "${PATURL}" -o "${PAT_PATH}" --progress-bar)
     if [ $? -ne 0 -o ${STATUS} -ne 200 ]; then
       rm -f "${PAT_PATH}"
+      MSG="$(printf "$(TEXT "Check internet or cache disk space.\nError: %d")" "${STATUS}")"
       dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Error")" \
-        --msgbox "$(TEXT "Check internet or cache disk space")" 0 0
+        --msgbox "${MSG}" 0 0
       return 1
     fi
   fi
@@ -832,8 +876,9 @@ function extractDsmFiles() {
         STATUS=$(curl -k -w "%{http_code}" -L "${OLDPATURL}" -o "${OLDPAT_PATH}" --progress-bar)
         if [ $? -ne 0 -o ${STATUS} -ne 200 ]; then
           rm -f "${OLDPAT_PATH}"
+          MSG="$(printf "$(TEXT "Check internet or cache disk space.\nError: %d")" "${STATUS}")"
           dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Error")" \
-            --msgbox "$(TEXT "Check internet or cache disk space")" 0 0
+            --msgbox "${MSG}" 0 0
           return 1
         fi
       fi
@@ -941,14 +986,14 @@ function make() {
   /opt/arpl/zimage-patch.sh
   if [ $? -ne 0 ]; then
     dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Error")" \
-      --msgbox "$(TEXT "zImage not patched:\n")$(<"${LOG_FILE}")" 0 0
+      --msgbox "$(TEXT "zImage not patched,\nPlease upgrade the bootloader version and try again.\nPatch error:\n")$(<"${LOG_FILE}")" 0 0
     return 1
   fi
 
   /opt/arpl/ramdisk-patch.sh
   if [ $? -ne 0 ]; then
     dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Error")" \
-      --msgbox "$(TEXT "Ramdisk not patched:\n")$(<"${LOG_FILE}")" 0 0
+      --msgbox "$(TEXT "Ramdisk not patched,\nPlease upgrade the bootloader version and try again.\nPatch error:\n")$(<"${LOG_FILE}")" 0 0
     return 1
   fi
   PRODUCTVER="$(readConfigKey "productver" "${USER_CONFIG_FILE}")"
@@ -977,10 +1022,12 @@ function advancedMenu() {
         echo "i \"$(TEXT "Timeout of get ip in boot:") \Z4${BOOTIPWAIT}\Zn\"" >>"${TMP_PATH}/menu"
         echo "w \"$(TEXT "Timeout of boot wait:") \Z4${BOOTWAIT}\Zn\"" >>"${TMP_PATH}/menu"
         echo "k \"$(TEXT "kernel switching method:") \Z4${KERNELWAY}\Zn\"" >>"${TMP_PATH}/menu"
+        echo "n \"$(TEXT "Reboot on kernel panic:") \Z4${KERNELPANIC}\Zn\"" >>"${TMP_PATH}/menu"
       fi
     fi
     echo "m \"$(TEXT "Set static IP")\"" >>"${TMP_PATH}/menu"
     echo "u \"$(TEXT "Edit user config file manually")\"" >>"${TMP_PATH}/menu"
+    echo "h \"$(TEXT "Edit grub.cfg file manually")\"" >>"${TMP_PATH}/menu"
     echo "t \"$(TEXT "Try to recovery a DSM installed system")\"" >>"${TMP_PATH}/menu"
     echo "s \"$(TEXT "Show SATA(s) # ports and drives")\"" >>"${TMP_PATH}/menu"
     if [ -n "${MODEL}" -a -n "${PRODUCTVER}" ]; then
@@ -1002,7 +1049,7 @@ function advancedMenu() {
     echo "e \"$(TEXT "Exit")\"" >>"${TMP_PATH}/menu"
 
     dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
-      --default-item "${NEXT}" --menu "$(TEXT "Choose the option")" 0 0 0 --file "${TMP_PATH}/menu" \
+      --default-item "${NEXT}" --menu "$(TEXT "Advanced option")" 0 0 0 --file "${TMP_PATH}/menu" \
       2>${TMP_PATH}/resp
     [ $? -ne 0 ] && break
     case $(<"${TMP_PATH}/resp") in
@@ -1020,7 +1067,7 @@ function advancedMenu() {
     i)
       ITEMS="$(echo -e "1 \n5 \n10 \n30 \n60 \n")"
       dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
-        --default-item "${BOOTIPWAIT}" --no-items --menu "$(TEXT "Choose a waiting time(seconds)")" 0 0 0 ${ITEMS} \
+        --default-item "${BOOTIPWAIT}" --no-items --menu "$(TEXT "Choose a time(seconds)")" 0 0 0 ${ITEMS} \
         2>${TMP_PATH}/resp
       [ $? -ne 0 ] && return
       resp=$(cat ${TMP_PATH}/resp 2>/dev/null)
@@ -1032,7 +1079,7 @@ function advancedMenu() {
     w)
       ITEMS="$(echo -e "1 \n5 \n10 \n30 \n60 \n")"
       dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
-        --default-item "${BOOTWAIT}" --no-items --menu "$(TEXT "Choose a waiting time(seconds)")" 0 0 0 ${ITEMS} \
+        --default-item "${BOOTWAIT}" --no-items --menu "$(TEXT "Choose a time(seconds)")" 0 0 0 ${ITEMS} \
         2>${TMP_PATH}/resp
       [ $? -ne 0 ] && return
       resp=$(cat ${TMP_PATH}/resp 2>/dev/null)
@@ -1044,6 +1091,21 @@ function advancedMenu() {
     k)
       [ "${KERNELWAY}" = "kexec" ] && KERNELWAY='power' || KERNELWAY='kexec'
       writeConfigKey "kernelway" "${KERNELWAY}" "${USER_CONFIG_FILE}"
+      NEXT="e"
+      ;;
+    n)
+      rm -f "${TMP_PATH}/opts"
+      echo "5 \"Reboot after 5 seconds\"" >>"${TMP_PATH}/opts"
+      echo "0 \"No reboot\"" >>"${TMP_PATH}/opts"
+      echo "-1 \"Restart immediately\"" >>"${TMP_PATH}/opts"
+      dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
+        --default-item "${KERNELPANIC}" --menu "$(TEXT "Choose a time(seconds)")" 0 0 0 --file "${TMP_PATH}/opts" \
+        2>${TMP_PATH}/resp
+      [ $? -ne 0 ] && return
+      resp=$(cat ${TMP_PATH}/resp 2>/dev/null)
+      [ -z "${resp}" ] && return
+      KERNELPANIC=${resp}
+      writeConfigKey "kernelpanic" "${KERNELPANIC}" "${USER_CONFIG_FILE}"
       NEXT="e"
       ;;
     m)
@@ -1064,31 +1126,35 @@ function advancedMenu() {
         2>"${TMP_PATH}/resp"
       [ $? -ne 0 ] && continue
       (
-      IDX=1
-      for ETH in ${ETHX[@]}; do
-        MACR="$(cat /sys/class/net/${ETH}/address | sed 's/://g')"
-        IPR="$(readConfigKey "network.${MACR}" "${USER_CONFIG_FILE}")"
-        IPC="$(cat "${TMP_PATH}/resp" | sed -n "${IDX}p")"
-        if [ -n "${IPC}" -a "${IPR}" != "${IPC}" ]; then
-          if ! echo "${IPC}" | grep -q "/"; then
-            IPC="${IPC}/24"
+        IDX=1
+        for ETH in ${ETHX[@]}; do
+          MACR="$(cat /sys/class/net/${ETH}/address | sed 's/://g')"
+          IPR="$(readConfigKey "network.${MACR}" "${USER_CONFIG_FILE}")"
+          IPC="$(cat "${TMP_PATH}/resp" | sed -n "${IDX}p")"
+          if [ -n "${IPC}" -a "${IPR}" != "${IPC}" ]; then
+            if ! echo "${IPC}" | grep -q "/"; then
+              IPC="${IPC}/24"
+            fi
+            ip addr add ${IPC} dev ${ETH}
+            writeConfigKey "network.${MACR}" "${IPC}" "${USER_CONFIG_FILE}"
+            sleep 1
+          elif [ -z "${IPC}" ]; then
+            deleteConfigKey "network.${MACR}" "${USER_CONFIG_FILE}"
           fi
-          ip addr add ${IPC} dev ${ETH}
-          writeConfigKey "network.${MACR}" "${IPC}" "${USER_CONFIG_FILE}"
-          sleep 1
-        elif [ -z "${IPC}" ]; then
-          deleteConfigKey "network.${MACR}" "${USER_CONFIG_FILE}"
-        fi
-        IDX=$((${IDX} + 1))
-      done
-      sleep 1
-      IP=$(ip route 2>/dev/null | sed -n 's/.* via .* dev \(.*\)  src \(.*\)  metric .*/\1: \2 /p' | head -1)
+          IDX=$((${IDX} + 1))
+        done
+        sleep 1
+        IP=$(ip route 2>/dev/null | sed -n 's/.* via .* dev \(.*\)  src \(.*\)  metric .*/\1: \2 /p' | head -1)
       ) | dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
         --progressbox "$(TEXT "Set IP..")" 20 70
       NEXT="e"
       ;;
     u)
       editUserConfig
+      NEXT="e"
+      ;;
+    h)
+      editGrubCfg
       NEXT="e"
       ;;
     t) tryRecoveryDSM ;;
@@ -1514,6 +1580,18 @@ function editUserConfig() {
 }
 
 ###############################################################################
+# Permits user edit the grub.cfg
+function editGrubCfg() {
+  while true; do
+    dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Edit with caution")" \
+      --editbox "${GRUB_PATH}/grub.cfg" 0 0 2>"${TMP_PATH}/usergrub.cfg"
+    [ $? -ne 0 ] && return
+    mv -f "${TMP_PATH}/usergrub.cfg" "${GRUB_PATH}/grub.cfg"
+    break
+  done
+}
+
+###############################################################################
 # Calls boot.sh to boot into DSM kernel/ramdisk
 function boot() {
   [ ${DIRTY} -eq 1 ] && dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Alert")" \
@@ -1923,7 +2001,7 @@ while true; do
   echo "e \"$(TEXT "Exit")\"" >>"${TMP_PATH}/menu"
 
   dialog --backtitle "$(backtitle)" --colors \
-    --default-item ${NEXT} --menu "$(TEXT "Choose the option")" 0 0 0 --file "${TMP_PATH}/menu" \
+    --default-item ${NEXT} --menu "$(TEXT "Main menu")" 0 0 0 --file "${TMP_PATH}/menu" \
     2>${TMP_PATH}/resp
   [ $? -ne 0 ] && break
   case $(<"${TMP_PATH}/resp") in

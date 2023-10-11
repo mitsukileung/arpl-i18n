@@ -17,8 +17,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.3.2\n"
 
-msgid "%2ds (accessing arpl will interrupt boot)"
-msgstr "%2ds (存取 arpl 將中斷開機)"
+msgid "%2ds (Changing access(ssh/web) status will interrupt boot)"
+msgstr "%2ds (變更存取 (ssh/web) 狀態將中斷開機)"
 
 msgid "%s cached."
 msgstr "%s 已快取。"
@@ -29,8 +29,8 @@ msgstr "%s 更新成功！"
 msgid "'Not set MACs' is enabled."
 msgstr "'不設定 MACs' 已啟用。"
 
-msgid "A new access is connected, the boot process is interrupted."
-msgstr "新的存取已連接，開機過程已中斷。"
+msgid "access(ssh/web) status has changed and booting is interrupted."
+msgstr "存取 (ssh/web) 狀態已變更，開機已中斷。"
 
 msgid "A valid dts file, Automatically import at compile time."
 msgstr "dts 檔案有效，將在編譯時自動匯入。"
@@ -116,20 +116,20 @@ msgstr "掛載 %s 失敗"
 msgid "Changing MAC"
 msgstr "修改 MAC"
 
-msgid "Check internet or cache disk space"
-msgstr "請檢查網際網路或磁碟空間"
+msgid "Check internet or cache disk space.\\nError: %d"
+msgstr "請檢查網際網路或快取磁碟空間。\\n錯誤: %d"
 
 msgid "Checking Connect."
 msgstr "檢查連線。"
 
 msgid "Checking hash of %s: "
-msgstr "檢查 %s 的 hash: "
+msgstr "檢查 %s 的雜湊值: "
 
 msgid "Checking last version"
 msgstr "檢測新版本中"
 
 msgid "Checksum do not match!"
-msgstr "Checksum 不相符！"
+msgstr "總和檢查碼不相符！"
 
 msgid "Choice a keymap"
 msgstr "選擇鍵盤"
@@ -150,19 +150,19 @@ msgid "Choose a model"
 msgstr "選擇型號"
 
 msgid "Choose a option"
-msgstr "選擇一個選項"
+msgstr "選擇選項"
 
 msgid "Choose a product version"
 msgstr "選擇產品版本"
 
 msgid "Choose a user name"
-msgstr "選擇一個使用者"
+msgstr "選擇使用者"
 
 msgid "Choose a version"
-msgstr "選擇一個版本"
+msgstr "選擇版本"
 
-msgid "Choose a waiting time(seconds)"
-msgstr "選擇一個等待時間(秒)"
+msgid "Choose a time(seconds)"
+msgstr "選擇一個時間 (秒)"
 
 msgid "Choose modules to include"
 msgstr "選擇要載入的模組"
@@ -170,8 +170,8 @@ msgstr "選擇要載入的模組"
 msgid "Choose the model"
 msgstr "選擇型號"
 
-msgid "Choose the option"
-msgstr "設定"
+msgid "Advanced option"
+msgstr "進階選項"
 
 msgid "Clean disk cache"
 msgstr "清除磁碟快取"
@@ -193,6 +193,9 @@ msgstr "設定 Cmdline"
 
 msgid "Cmdline:\\n"
 msgstr "Cmdline:\\n"
+
+msgid "Compatibility judgment"
+msgstr "相容性判斷"
 
 msgid "Compressed tar"
 msgstr "壓縮 tar"
@@ -216,10 +219,10 @@ msgid "Custom dts file # Need rebuild"
 msgstr "自訂 dts 檔案 # 需要重新編譯"
 
 msgid "DMI:  "
-msgstr ""
+msgstr "DMI:  "
 
 msgid "DOWN"
-msgstr "關閉"
+msgstr "關機"
 
 msgid "DSM Ramdisk changed"
 msgstr "DSM Ramdisk 已變更"
@@ -246,7 +249,7 @@ msgid "Delete synoinfo item(s)"
 msgstr "删除 Synoinfo 參數"
 
 msgid "Deselect all"
-msgstr "取消所有"
+msgstr "全部不選"
 
 msgid "Detected %s network cards, %s MACs were customized, the rest will use the original MACs."
 msgstr "檢測到 %s 個網路卡, 自訂了 %s 個 MAC，其他網路卡將使用本身 MAC。"
@@ -275,8 +278,11 @@ msgstr "下載舊 pat，選取 .pat 解密程式中..."
 msgid "Edit"
 msgstr "編輯"
 
+msgid "Edit grub.cfg file manually"
+msgstr "手動編輯 grub.cfg"
+
 msgid "Edit user config file manually"
-msgstr "編輯使用者設定檔"
+msgstr "手動編輯使用者設定檔"
 
 msgid "Edit with caution"
 msgstr "請謹慎編輯"
@@ -378,13 +384,16 @@ msgid "Loader is not configured!"
 msgstr "開機檔未設置！"
 
 msgid "Loading DSM kernel..."
-msgstr "載入 DSM kernel..."
+msgstr "載入 DSM 核心..."
 
 msgid "Loading keymap"
 msgstr "載入 keymap"
 
 msgid "Local upload"
 msgstr "本地上傳"
+
+msgid "Main menu"
+msgstr "主功能表"
 
 msgid "MEM:  "
 msgstr "MEM:  "
@@ -455,6 +464,9 @@ msgstr "請輸入代理伺服器網址"
 msgid "Please enter a serial number "
 msgstr "請輸入 SN "
 
+msgid "Please insert at least one sata disk for system installation, except for the bootloader disk."
+msgstr "除了開機碟之外，請至少插入一個 sata 磁碟以進行系統安裝。"
+
 msgid "Please keep the attachment name consistent with the attachment name on Github.\\n"
 msgstr "請保持附件名稱與 github 上附件名稱一致。\\n"
 
@@ -479,8 +491,8 @@ msgstr "優先使用官方驅動程式:"
 msgid "Product Version"
 msgstr "產品版本"
 
-msgid "Ramdisk not patched:\\n"
-msgstr "Ramdisk 修補失敗:\\n"
+msgid "Ramdisk not patched,\\nPlease upgrade the bootloader version and try again.\\nPatch error:\\n"
+msgstr "Ramdisk 未修補，\\n請升級開機載入程式版本然後重試。\\n修補錯誤:\\n"
 
 msgid "Reading models"
 msgstr "讀取型號"
@@ -494,11 +506,14 @@ msgstr "已就绪!"
 msgid "Reboot"
 msgstr "重新開機"
 
+msgid "Reboot on kernel panic:"
+msgstr "核心崩潰時重新啟動:"
+
 msgid "Reboot to arpl"
-msgstr "重開機到 ARPL"
+msgstr "重新開機並進入arpl"
 
 msgid "Reboot to boot directly in DSM"
-msgstr "重啓並直接進入 DSM 開機"
+msgstr "重新開機以直接啟動 DSM"
 
 msgid "Reconfiguring Synoinfo, Addons and Modules"
 msgstr "重新設置 Syninfo、增益集和模組"
@@ -543,7 +558,7 @@ msgid "Select addon to remove"
 msgstr "選擇要删除的增益集"
 
 msgid "Select all"
-msgstr "選擇所有"
+msgstr "全選"
 
 msgid "Select an addon"
 msgstr "選擇增益集"
@@ -579,16 +594,16 @@ msgid "Show all available addons"
 msgstr "顯示所有可用增益集"
 
 msgid "Show all models"
-msgstr "顯示所有型號"
+msgstr "顯示全部模組"
 
 msgid "Show dsm logo:"
-msgstr "顯示 dsm logo:"
+msgstr "顯示 DSM 商標:"
 
 msgid "Show model inherent cmdline"
 msgstr "顯示型號預設的 cmdline 參數"
 
 msgid "Show/Select modules"
-msgstr "顯/選擇模組"
+msgstr "顯示/選擇模組"
 
 msgid "Show synoinfo entries"
 msgstr "顯示 Synoinfo 參數"
@@ -615,7 +630,7 @@ msgid "Synoinfo"
 msgstr "Synoinfo"
 
 msgid "Synoinfo menu"
-msgstr "設定 Synoinfo"
+msgstr "Synoinfo 功能表"
 
 msgid "TIMEOUT (Please check the IP on the router.)"
 msgstr "逾時 (請檢查路由器上的IP.)"
@@ -624,10 +639,10 @@ msgid "The addon already exists. Do you want to overwrite it?"
 msgstr "該增益集已存在，是否覆寫？"
 
 msgid "The current version does not support upgrading to the latest update.zip. Please remake the bootloader disk!"
-msgstr "目前版本不支援最新的 update.zip 升級，請重新製作開機碟！"
+msgstr "目前版本不支援升級到最新的 update.zip，請重新製作開機碟！"
 
-msgid "The current version of arpl does not support booting %s-%s, please rebuild."
-msgstr "目前版本的 arpl 不支援開機 %s-%s，請重新編譯。"
+msgid "The current version of bootloader does not support booting %s-%s, please upgrade and rebuild."
+msgstr "目前版本的開機載入程式不支援啟動 %s-%s，請升級並重建。"
 
 msgid "The imported .ko of this function will be implanted into the corresponding arch's modules package, which will affect all models of the arch.\\n"
 msgstr "該功能匯入 .ko 將植入相對架構的模組套件。這將影響該架構的所有型號。\\n"
@@ -726,7 +741,7 @@ msgid "Update arpl"
 msgstr "更新 ARPL"
 
 msgid "Update menu"
-msgstr "更新"
+msgstr "更新功能表"
 
 msgid "Update modules"
 msgstr "更新模組"
@@ -750,7 +765,7 @@ msgid "Upload update.zip will update arpl.\\n"
 msgstr "上傳 update.zip 將更新 arpl。\\n"
 
 msgid "User config is on"
-msgstr "使用者設定檔位於"
+msgstr "使用者設定已開啟"
 
 msgid "User requested edit settings."
 msgstr "使用者要求編輯設定。"
@@ -780,7 +795,7 @@ msgid "Writing..."
 msgstr "寫入中..."
 
 msgid "You have less than 4GB of RAM, if errors occur in loader creation, please increase the amount of memory."
-msgstr "您的 RAM 不足 4GB，如果在建立開機檔時出現錯誤，請增加記憶體。"
+msgstr "您的記憶體不足 4GB，如果在建立開機檔時出現錯誤，請增加記憶體。"
 
 msgid "[This interface will not be operational.\\nPlease wait for a few minutes before using the http://find.synology.com/ or Synology Assistant find DSM and connect.]"
 msgstr "[該介面已無法操作。\\n請在數分鐘後透過 http://find.synology.com/ 或者 Synology Assistant 搜尋 DSM 並連線。]"
@@ -807,13 +822,13 @@ msgid "kernel switching method:"
 msgstr "核心切換的方式:"
 
 msgid "md5 Hash of pat not match, try again!"
-msgstr "pat 的 md5 Hash 不相符，請重試！"
+msgstr "pat 的 md5 雜湊值不相符，請重試！"
 
 msgid "modules"
 msgstr "模組"
 
 msgid "opkg install is complete. Please reconnect to SSH/web, or execute 'source ~/.bashrc'"
-msgstr "opkg 安裝完成。請重新連結 SSH/web，或者執行「source ~/.bashrc」"
+msgstr "opkg 安裝完成。請重新連線 SSH/web，或者執行「source ~/.bashrc」"
 
 msgid "opkg installing ..."
 msgstr "opkg 安裝中 ..."
@@ -825,7 +840,8 @@ msgid "pat: (editable)"
 msgstr "pat: (可編輯)"
 
 msgid "show/modify the current pat data"
-msgstr "顯示/修改目前 pat 下載連結"
+msgstr "顯示/修改目前 pat 資料"
 
-msgid "zImage not patched:\\n"
-msgstr "zImage 修補失敗:\\n"
+msgid "zImage not patched,\\nPlease upgrade the bootloader version and try again.\\nPatch error:\\n"
+msgstr "zImage 未修補，\\n請升級開機載入程式版本然後重試。\\n修補錯誤:\\n"
+
