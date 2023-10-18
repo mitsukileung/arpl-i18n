@@ -823,7 +823,7 @@ function extractDsmFiles() {
   echo -n "$(printf "$(TEXT "Checking hash of %s: ")" "${PAT_FILE}")"
   if [ "$(md5sum ${PAT_PATH} | awk '{print $1}')" != "${PATSUM}" ]; then
     dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Error")" \
-      --msgbox "$(TEXT "md5 Hash of pat not match, try again!")" 0 0
+      --msgbox "$(TEXT "md5 hash of pat not match, Please reget pat data from the version menu and try again!")" 0 0
     rm -f ${PAT_PATH}
     return 1
   fi
@@ -1022,8 +1022,8 @@ function advancedMenu() {
         echo "i \"$(TEXT "Timeout of get ip in boot:") \Z4${BOOTIPWAIT}\Zn\"" >>"${TMP_PATH}/menu"
         echo "w \"$(TEXT "Timeout of boot wait:") \Z4${BOOTWAIT}\Zn\"" >>"${TMP_PATH}/menu"
         echo "k \"$(TEXT "kernel switching method:") \Z4${KERNELWAY}\Zn\"" >>"${TMP_PATH}/menu"
-        echo "n \"$(TEXT "Reboot on kernel panic:") \Z4${KERNELPANIC}\Zn\"" >>"${TMP_PATH}/menu"
       fi
+      echo "n \"$(TEXT "Reboot on kernel panic:") \Z4${KERNELPANIC}\Zn\"" >>"${TMP_PATH}/menu"
     fi
     echo "m \"$(TEXT "Set static IP")\"" >>"${TMP_PATH}/menu"
     echo "u \"$(TEXT "Edit user config file manually")\"" >>"${TMP_PATH}/menu"
@@ -1145,8 +1145,8 @@ function advancedMenu() {
         done
         sleep 1
         IP=$(ip route 2>/dev/null | sed -n 's/.* via .* dev \(.*\)  src \(.*\)  metric .*/\1: \2 /p' | head -1)
-      ) | dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
-        --progressbox "$(TEXT "Set IP..")" 20 70
+      ) 2>&1 | dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
+        --progressbox "$(TEXT "Setting IP ...")" 20 100
       NEXT="e"
       ;;
     u)
@@ -1247,8 +1247,8 @@ function advancedMenu() {
           umount "${I}"
         done
         rm -rf "${TMP_PATH}/sdX1"
-      ) | dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
-        --progressbox "$(TEXT "Removing ...")" 20 70
+      ) 2>&1 | dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
+        --progressbox "$(TEXT "Removing ...")" 20 100
       MSG="$(TEXT "Remove VERSION file for all disks completed.")"
       dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
         --msgbox "${MSG}" 0 0
@@ -1279,10 +1279,10 @@ function advancedMenu() {
       fi
       (
         for I in ${RESP}; do
-          mkfs.ext4 -T largefile4 "${I}"
+          echo y | mkfs.ext4 -T largefile4 "${I}"
         done
-      ) | dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
-        --progressbox "$(TEXT "Formatting ...")" 20 70
+      ) 2>&1 | dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
+        --progressbox "$(TEXT "Formatting ...")" 20 100
       dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
         --msgbox "$(TEXT "Formatting is complete.")" 0 0
       ;;
@@ -1332,8 +1332,8 @@ function advancedMenu() {
           umount "${I}"
         done
         rm -rf "${TMP_PATH}/sdX1"
-      ) | dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
-        --progressbox "$(TEXT "Resetting ...")" 20 70
+      ) 2>&1 | dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
+        --progressbox "$(TEXT "Resetting ...")" 20 100
       [ -f "${SHADOW_FILE}" ] && rm -rf "${SHADOW_FILE}"
       dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
         --msgbox "$(TEXT "Password reset completed.")" 0 0
@@ -1483,8 +1483,8 @@ function advancedMenu() {
         source ~/.bashrc
         opkg update
         #opkg install python3 python3-pip
-      ) | dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
-        --progressbox "$(TEXT "opkg installing ...")" 20 70
+      ) 2>&1 | dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
+        --progressbox "$(TEXT "opkg installing ...")" 20 100
       dialog --backtitle "$(backtitle)" --colors --title "$(TEXT "Advanced")" \
         --msgbox "$(TEXT "opkg install is complete. Please reconnect to SSH/web, or execute 'source ~/.bashrc'")" 0 0
       ;;
